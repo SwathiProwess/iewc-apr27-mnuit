@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:sap="http://www.mulesoft.org/schema/mule/sap" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/sap http://www.mulesoft.org/schema/mule/sap/current/mule-sap.xsd">
+    <apikit:config name="iewc-sap-taxrequest-eapi-config" api="iewc-sap-taxrequest-eapi.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <flow name="iewc-sap-taxrequest-eapi-main" doc:id="68148145-81a7-44ca-8f41-ec2bcd8934b0">
+        <http:listener config-ref="HTTP_Listener_config" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <ee:transform doc:name="SetVariables" doc:id="cdd822df-5e2f-410f-bb65-39ae7302bc48">
+            <ee:message />
+            <ee:variables>
+                <ee:set-variable variableName="correlationId"><![CDATA[if(!isEmpty(attributes.headers.correlationId)) attributes.headers.correlationId else correlationId]]></ee:set-variable>
+                <ee:set-variable variableName="systemId"><![CDATA[if(!isEmpty(attributes.headers.systemId)) attributes.headers.systemId else "ANY"]]></ee:set-variable>
+                <ee:set-variable variableName="httpMethod"><![CDATA[attributes.method]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+        <apikit:router config-ref="iewc-sap-taxrequest-eapi-config" />
+        <error-handler ref="error-handler" />
+    </flow>
+    <flow name="iewc-sap-taxrequest-eapi-console">
+        <http:listener path="/console/*" config-ref="HTTP_Listener_config">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="iewc-sap-taxrequest-eapi-config" />
+        <error-handler ref="error-handler" />
+    </flow>
+    <flow name="post:\tax_request:application\json:iewc-sap-taxrequest-eapi-config">
+		<flow-ref doc:name="Flow Reference" doc:id="ea23a7b1-f092-4632-b5f3-9811e9772807" name="iewc-tax-request-subFlow"/>
+		<error-handler ref="error-handler" />
+    </flow>
+</mule>

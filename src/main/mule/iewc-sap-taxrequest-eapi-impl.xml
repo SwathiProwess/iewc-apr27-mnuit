@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<sub-flow name="iewc-tax-request-subFlow" doc:id="cd2face6-0dba-41c2-a8c0-072ccf0d6e3e" >
+		<ee:transform doc:name="RequestReceived" doc:id="3919dd26-2963-4b7c-adcd-db67fdb26d37">
+			<ee:message />
+			<ee:variables>
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId : vars.correlationId,
+    eventTimestamp : now(), 
+    businessProcessName: "SAP-taxrequest-experience-API",
+    flowName: "iewc-sap-taxrequest-eapi-flow",   
+    source: "iewc-user", 
+    target: "sap-taxrequest-papi", 
+    httpMethod: vars.httpMethod, 
+    message:"Received request from iewc user", 
+    businessObject: [
+    	{
+         "key":"guesT_COUNTRY",
+         "value": payload.searchparams.guesT_COUNTRY
+},
+{
+         "key":"guesT_REGION",
+         "value": payload.searchparams.guesT_REGION
+},
+{
+         "key":"shiP_TO",
+         "value": payload.searchparams.shiP_TO
+}
+    ]  
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="LogRequestReceived" doc:id="5fb6ae79-bf1a-416c-8cf8-cda1825894e1" name="mile-log:request-received" />
+		<http:request method="POST" doc:name="RequestCallToPapi" doc:id="53e78b7a-e503-4e64-a620-7fdc556288f4" config-ref="HTTP_Request_configuration" path="/api/tax_request" sendCorrelationId="ALWAYS">
+		</http:request>
+		<ee:transform doc:name="ResponseToUser" doc:id="cf12df50-74e5-42ed-9eda-170a4ef4bdba" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="ResponseSent" doc:id="8d7fc1a0-4b01-4477-b87b-3c8749c42b36" >
+			<ee:message />
+			<ee:variables >
+				<ee:set-variable variableName="inputPayload" ><![CDATA[%dw 2.0
+output application/json
+---
+{
+    correlationId : vars.correlationId,
+    eventTimestamp : now(), 
+    businessProcessName: "SAP-taxrequest-experience-API",
+    flowName: "iewc-sap-taxrequest-eapi-flow",   
+    source: "iewc-user", 
+    target: "sap-taxrequest-papi", 
+    httpMethod: vars.httpMethod, 
+    message:"Response sent back to eapi from papi", 
+    businessObject: [
+    	payload
+    ]
+
+}]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<flow-ref doc:name="LogResponseSent" doc:id="c1a45c20-13ef-435b-b8ee-9f67d90e0338" name="mile-log:request-sent" />
+	</sub-flow>
+</mule>

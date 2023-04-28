@@ -1,0 +1,276 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="iewc-sap-taxrequest-eapi-test-suite.xml" />
+	<munit:test name="taxrequest-eapi-main" doc:id="75948ce8-681f-4bba-a36b-1bfc75fdf962" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="066d7465-f1ce-4d7c-9489-2415de28d125" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to iewc-sap-taxrequest-eapi-main" doc:id="2b23add5-eae8-4313-a6fa-24bb4a67a2e9" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="64815703-9e71-407e-8b27-62bfd58b0f98" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="taxrequest-eapi-console" doc:id="0748de0a-26ca-4eba-9cfb-4fe99ac61b24" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="46130610-e5ec-4c89-8015-b41155480711" processor="apikit:console">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to iewc-sap-taxrequest-eapi-console" doc:id="c7499199-5102-4fbb-8024-3ebfaa98c411" name="iewc-sap-taxrequest-eapi-console"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7a4aac6d-1a13-437e-add4-9a10b714195f" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="logging-test-suite" doc:id="7b99c304-5437-4d92-ad91-7e34be1304fd" >
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="26672b0a-7116-439f-aea6-de9338511161" name="mile-log:payload-logger"/>
+			<flow-ref doc:name="Flow Reference" doc:id="2f1903ec-c2eb-4698-ba13-d5d119902f12" name="mile-log:data-enrinchment-failure"/>
+			<flow-ref doc:name="Flow Reference" doc:id="436abf69-0100-4191-a841-648f7add98c2" name="mile-log:failure-response-received"/>
+			<flow-ref doc:name="Flow Reference" doc:id="a041f58e-0e62-458f-8384-2066fbf4e25c" name="mile-log:failure-response-sent"/>
+			<flow-ref doc:name="Flow Reference" doc:id="ef74902e-7614-4931-af90-b43c030dc729" name="mile-log:filter-criteria-failed"/>
+			<flow-ref doc:name="Flow Reference" doc:id="dccd564c-6caf-421e-a9a8-9b758d0197c0" name="mile-log:success-response-received"/>
+			<flow-ref doc:name="Flow Reference" doc:id="a8c72650-dd98-48ec-97f4-aabaec42ac90" name="mile-log:success-response-sent"/>
+		</munit:execution>
+	</munit:test>
+	<munit:test name="taxrequest-eapi-impl-test-suite" doc:id="31610f20-cf0a-4b1a-8b06-a1bfbcc1d3ed" description="Test">
+		<munit:behavior>
+			<munit-tools:mock-when doc:name="Mock when" doc:id="7cfd02e0-6cfd-4a36-89a5-55d6d23241c0" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="53e78b7a-e503-4e64-a620-7fdc556288f4" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value='#[output application/json&#10;---&#10;readUrl("classpath://response.dwl")]' />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="e0e91e8c-7d63-46bb-bcfe-5a8ae6d65928" >
+				<munit:payload value='#[output application/json&#10;---&#10;readUrl("classpath://request.dwl")]' />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\tax_request:application\json:iewc-sap-taxrequest-eapi-config" doc:id="5535b9f9-4db3-48e3-a038-11e250015989" name="post:\tax_request:application\json:iewc-sap-taxrequest-eapi-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d01cef3a-551a-4ab6-8424-a5ec1aaea467" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="APIKIT:BAD_REQUEST" doc:id="6b81ead3-3da7-451f-b38a-32286644b2ab" expectedErrorType="APIKIT:BAD_REQUEST">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="603c9d86-ed82-4a52-8963-02e41e64b5b5" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="aad08202-3e2d-430a-b556-77df93e5e7b6" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="442b82ba-148f-4440-8e25-4863b6d85e50" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+
+<munit:test name="APIKIT:METHOD_NOT_ALLOWED" doc:id="360e1963-3523-4624-87fa-d05a3ab464d0" expectedErrorType="APIKIT:METHOD_NOT_ALLOWED">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="c4a9a994-476b-4ae5-9f0e-aa89a010d307" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:METHOD_NOT_ALLOWED" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="3aca8374-cba9-42d7-8287-74db2f359080" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="a25933c7-03b9-4ba2-9c02-19dbf9428870" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="APIKIT:NOT_ACCEPTABLE" doc:id="f98d83f9-9292-4fa8-974e-9754a0ea6676" expectedErrorType="APIKIT:NOT_ACCEPTABLE">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="5921282d-3ec9-49df-a0bf-6c74f847669c" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_ACCEPTABLE" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="4bc184b0-606b-4d87-9e95-70f627c0a477" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="7e915fc9-d234-4c5b-81a8-f60c3f58e2b6" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="APIKIT:NOT_FOUND" doc:id="977615ac-2973-457f-9576-9930819adc7f" expectedErrorType="APIKIT:NOT_FOUND">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="3a062ce0-0228-4fb2-b271-9ee5d3a96c4a" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_FOUND" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="54475b71-2c2c-460a-b4fe-e2fb7988a71c" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="bb8b66d9-7a32-435f-b8a9-ff5eb1a94a66" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="APIKIT:NOT_IMPLEMENTED" doc:id="32b5338a-ac54-47b0-a1e9-e96ce302fe65" expectedErrorType="APIKIT:NOT_IMPLEMENTED">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="c3761f49-e7c3-457e-b09d-71bb07e2a8fd" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:NOT_IMPLEMENTED" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="3389ec79-0893-453d-99d2-8c09de29e6d3" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="cbc502e8-b948-41e1-9a7c-f85082908f81" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="APIKIT:UNSUPPORTED_MEDIA_TYPE" doc:id="422b8c85-32dc-44de-ac13-965a6635c2c2" expectedErrorType="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="0834ea37-967c-4fe7-96ce-77012e715d22" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:UNSUPPORTED_MEDIA_TYPE" />
+				</munit-tools:then-return>
+			
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="a2698e54-9eb3-4029-9afa-cb6cd1cf10d2" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="3414f52d-d0df-4f09-ac26-e98e12f513ec" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="HTTP:FORBIDDEN" doc:id="45bbe086-6949-4c62-9214-99ed2cf1baf5" expectedErrorType="HTTP:FORBIDDEN">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="b465c3aa-0228-4cfc-b674-b49d84c47926" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:FORBIDDEN" />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="25767318-408d-4b07-a30a-e68fc92eb37d" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b379fb91-07a3-4f0b-9491-5419855ca6ba" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="HTTP:INTERNAL_SERVER_ERROR" doc:id="749b8edf-2375-43f4-b178-2e820b57b8e1" expectedErrorType="HTTP:INTERNAL_SERVER_ERROR">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="8b8b4e5d-ff23-4c5e-9f02-83679918ed0d" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:INTERNAL_SERVER_ERROR" />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="ea379dc8-41d4-48ac-bc93-8e4874c9c9a9" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="cd219b87-2a60-4e1b-b39a-3136f7e36752" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="HTTP:UNAUTHORIZED" doc:id="5ccc5530-c129-4992-853a-3de349ceb3f6" expectedErrorType="HTTP:UNAUTHORIZED">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e2af785f-f9ea-4552-bca4-f5bfaa99a993" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="HTTP:UNAUTHORIZED" />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="212e07fd-4ec3-44ec-8b1a-7de7575ddc91" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="3de21611-a9aa-4805-af71-8784e389a152" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+	<munit:test name="ANY" doc:id="91335b0d-655c-40ea-a44e-168d06973188" expectedErrorType="ANY">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="949ca3f9-27d6-4f6c-a7b9-4cb36cd381f5" processor="apikit:router" >
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="iewc-sap-taxrequest-eapi-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="ANY" />
+				</munit-tools:then-return>
+			
+
+</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow Reference" doc:id="dab3cd23-b386-491d-b69a-c3bed1c7bac9" name="iewc-sap-taxrequest-eapi-main"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="c1353045-a5bb-42c2-9224-439b7d2ab4de" expression="#[payload]" is="#[MunitTools::notNullValue()]" />
+		</munit:validation>
+	</munit:test>
+	
+</mule>
